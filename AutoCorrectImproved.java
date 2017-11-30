@@ -7,12 +7,12 @@ public class AutoCorrectImproved{
 
     public static final int SHORTER_LEXICON_SIZE = 73;
     public static final int DICTIONARY_SIZE = 121806;
-    private static HashMap<Character, Integer[]> cMap = new HashMap<Character, Integer[]>(); 
+    private static HashMap<Character, Integer[]> cMap = new HashMap<Character, Integer[]>();
     private static String[] m_dict = new String[DICTIONARY_SIZE];
     ////////////////////////////////////////////////////////////////////////////
     //* @brief: Constructor
     //* @param filename: name of file passed in
-    public AutoCorrect(String filename){
+    public AutoCorrectImproved(String filename){
         File file = new File(filename);
 
         try {
@@ -21,15 +21,15 @@ public class AutoCorrectImproved{
                 m_dict[i] = sc.next();
             }
             sc.close();
-        } 
+        }
         catch (FileNotFoundException e) {
             e.printStackTrace();
         }
         initializeCMap();
     }
-    
+
     ////////////////////////////////////////////////////////////////////////////
-    //* @brief: Initialize Character Map. Maps each character 
+    //* @brief: Initialize Character Map. Maps each character
     //* with its coordinates based on its keyboard position.
     public static void initializeCMap(){
         cMap.put('q', new Integer[]{0,2});
@@ -76,16 +76,18 @@ public class AutoCorrectImproved{
         for(int i = 1; i <= word1.length(); i++){
             for(int j = 1; j <= word2.length(); j++){
                 char c1 = word1.charAt(i-1);
-                char c2 = word2.charAt(j-1);            
+                char c2 = word2.charAt(j-1);
                 double diff = computeDistance(c1,c2);
-                E[i][j] = Math.min(E[i-1][j] + 6, E[i][j-1] + 7);
-                E[i][j] = Math.min(E[i][j], E[i-1][j-1] + diff);
+                E[i][j] = Math.min(E[i-1][j] + 6+(word1.length-i), E[i][j-1] + 7);
+                E[i][j] = Math.min(E[i][j], E[i-1][j-1] + diff + (word1.length-i));
+                if(c1 == c2)
+                  E[i][j] = E[i-1][j-1];
             }
         }
         return E[word1.length()][word2.length()];
     }
 
-    
+
     ////////////////////////////////////////////////////////////////////////////
     //* @brief: Find Euclidean distance between two given characters
     //* @param key1: first given character
